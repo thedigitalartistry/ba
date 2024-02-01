@@ -10,6 +10,10 @@ app.get("/ping", (req, res) => {
   res.send("pong");
 });
 
+app.get("/chartjs", (req, res) => {
+  res.send("pong");
+});
+
 app.get("/minutes", (req, res) => {
   // get current user timezone
   const { timeZone } = Intl.DateTimeFormat().resolvedOptions();
