@@ -39,11 +39,10 @@ fetch(
     const { timeZone } = Intl.DateTimeFormat().resolvedOptions();
     document.querySelector("#timezone1").innerText = timeZone;
     document.querySelector("#timezone2").innerText = timeZone;
+
     const offset = getTimezoneOffset(timeZone);
     document.querySelector("#timezone-3").value = offset * -1;
-    console.log("====================================");
-    console.log("offset", offset);
-    console.log("====================================");
+
 
     // debugger;
     for (let hour = 0; hour < 24; hour++) {
@@ -71,6 +70,7 @@ fetch(
     }
 
     const now = new Date();
+    document.querySelector(".circle_link[data-hour='" + now.getHours() + "']").click();
     filterSingleHout(now.getHours());
   })
   .catch((error) => {
