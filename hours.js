@@ -1,4 +1,6 @@
 var hours_data = [];
+let updating = false;
+const scrollContainer = document.querySelector("#chartContainer");
 
 function getTimezoneOffset(timeZone) {
   const now = new Date();
@@ -30,8 +32,15 @@ function getTimezoneOffset(timeZone) {
 function filterSingleHout(hour) {
   const currentHourData = {};
   for (let hours = hour - 1; hours < parseInt(hour) + 2; hours++) {
+    let hour_ = hours;
+    if (hour_ < 0) {
+      hour_ = 24 + hour_;
+    }
+    if (hour_ > 23) {
+      hour_ = hour_ - 24;
+    }
     for (let minute = 0; minute < 60; minute++) {
-      const time = `${hours.toString().padStart(2, "0")}:${minute
+      const time = `${hour_.toString().padStart(2, "0")}:${minute
         .toString()
         .padStart(2, "0")}:00`;
       currentHourData[time] = hours_data[time];
@@ -40,11 +49,15 @@ function filterSingleHout(hour) {
 
   myChartObj.data.labels = Object.keys(currentHourData);
   myChartObj.data.datasets[0].data = Object.values(currentHourData);
+  updating = true;
   myChartObj.update();
+  setTimeout(() => {
+    updating = false;
+  }, 900);
 
   // Scroll to horizontal center
-  const scrollContainer = document.querySelector("#chartContainer");
-  scrollContainer.scrollLeft = (scrollContainer.scrollWidth - scrollContainer.offsetWidth) / 2;
+  scrollContainer.scrollLeft =
+    (scrollContainer.scrollWidth - scrollContainer.offsetWidth) / 2;
 }
 
 // get request
@@ -108,8 +121,6 @@ document.querySelectorAll(".circle_link").forEach((el) => {
   });
 });
 
-const scrollContainer = document.querySelector("#chartContainer");
-
 scrollContainer.addEventListener("wheel", (evt) => {
   evt.preventDefault();
   scrollContainer.scrollLeft += evt.deltaY;
@@ -137,36 +148,71 @@ scrollContainer.addEventListener("mouseup", () => {
   isDragging = false;
 });
 
+scrollContainer.addEventListener("mouseleave", () => {
+  isDragging = false;
+});
+
 // ...
 
-scrollContainer.addEventListener("wheel", (evt) => {
+scrollContainer.addEventListener("scroll", (evt) => {
   evt.preventDefault();
-  scrollContainer.scrollLeft += evt.deltaY;
+  if (updating) return;
 
+  // scrollContainer.scrollLeft += evt.deltaY;
+  // debugger;
   // Check if the left limit is reached
   if (scrollContainer.scrollLeft === 0) {
-    const currentHour = document.querySelector(".circle_item.current .circle_link").getAttribute("data-hour");
-    const previousHour = parseInt(currentHour) - 1;
-    const previousLink = document.querySelector(`.circle_link[data-hour="${previousHour}"]`);
+    const currentHour = document
+      .querySelector(".circle_item.current .circle_link")
+      .getAttribute("data-hour");
+    let previousHour = parseInt(currentHour) - 1;
+    if (previousHour < 0) {
+      previousHour += 24;
+    }
+    if (previousHour > 23) {
+      previousHour -= 24;
+    }
+    const previousLink = document.querySelector(
+      `.circle_link[data-hour="${previousHour}"]`
+    );
     if (previousLink) {
       previousLink.click();
+      updating = true;
+      setTimeout(() => {
+        updating = false;
+      }, 900);
+      return;
     }
   }
 
   // Check if the right limit is reached
-  const maxScrollLeft = scrollContainer.scrollWidth - scrollContainer.clientWidth;
+  const maxScrollLeft =
+    scrollContainer.scrollWidth - scrollContainer.clientWidth;
   if (scrollContainer.scrollLeft === maxScrollLeft) {
-    const currentHour = document.querySelector(".circle_item.current .circle_link").getAttribute("data-hour");
-    const nextHour = parseInt(currentHour) + 1;
-    const nextLink = document.querySelector(`.circle_link[data-hour="${nextHour}"]`);
+    const currentHour = document
+      .querySelector(".circle_item.current .circle_link")
+      .getAttribute("data-hour");
+    let nextHour = parseInt(currentHour) + 1;
+    if (nextHour < 0) {
+      nextHour += 24;
+    }
+    if (nextHour > 23) {
+      nextHour -= 24;
+    }
+    const nextLink = document.querySelector(
+      `.circle_link[data-hour="${nextHour}"]`
+    );
     if (nextLink) {
       nextLink.click();
+      updating = true;
+      setTimeout(() => {
+        updating = false;
+      }, 900);
     }
   }
 });
 
 // ...
-
 
 // graph
 
