@@ -1,5 +1,6 @@
 var hours_data = [];
 let updating = false;
+let total_count = 0;
 const scrollContainer = document.querySelector("#chartContainer");
 
 function getTimezoneOffset(timeZone) {
@@ -76,6 +77,42 @@ fetch(
 
     const offset = getTimezoneOffset(timeZone);
     document.querySelector("#timezone-3").value = offset * -1;
+
+    total_count = data.total_count;
+    document.querySelector("#total_minutes").innerText = total_count;
+    document.querySelector("#total_hours").innerText = (
+      total_count / 60
+    ).toFixed(2);
+    document.querySelector("#ticker-top").innerText =
+      total_count +
+      " people signed up  • " +
+      total_count +
+      " people signed up  • " +
+      total_count +
+      " people signed up  • " +
+      total_count +
+      " people signed up  • " +
+      total_count +
+      " people signed up  • " +
+      total_count +
+      " people signed up  • " +
+      total_count +
+      " people signed up  • ";
+    document.querySelector("#ticker-bottom").innerText =
+      total_count +
+      " people signed up  • " +
+      total_count +
+      " people signed up  • " +
+      total_count +
+      " people signed up  • " +
+      total_count +
+      " people signed up  • " +
+      total_count +
+      " people signed up  • " +
+      total_count +
+      " people signed up  • " +
+      total_count +
+      " people signed up  • ";
 
     // debugger;
     for (let hour = 0; hour < 24; hour++) {
@@ -365,6 +402,76 @@ var myChartObj = new Chart(ctx, {
   },
 });
 
+const ctx2 = document.getElementById("topChart");
+new Chart(ctx2, {
+  type: "bar",
+  data,
+
+  data: {
+    labels: ["Red", "Blue", "Yellow"],
+    datasets: [
+      {
+        axis: "y",
+        label: "",
+        data: [65, 59, 80],
+        fill: false,
+        backgroundColor: ["#5DCEE8", "#5DCEE8", "#5DCEE8"],
+        borderWidth: 1,
+      },
+    ],
+  },
+  options: {
+    indexAxis: "y",
+    tooltips: {
+      enabled: false,
+    },
+    scales: {
+      x: {
+        display: false,
+        stacked: true,
+        ticks: {
+          beginAtZero: true,
+          fontColor: "white",
+          color: "#000000",
+        },
+        scaleLabel: {
+          fontColor: "white",
+        },
+      },
+      y: {
+        stacked: true,
+        display: true,
+        ticks: {
+          mirror: true,
+          beginAtZero: true,
+          fontColor: "white",
+          color: "#000000",
+          z: 20,
+          font: {
+            fontColor: "#fff",
+            size: 14,
+            padding: "5px",
+          },
+        },
+        scaleLabel: {
+          fontColor: "white",
+        },
+      },
+    },
+    legend: {
+      display: false,
+    },
+    plugins: {
+      legend: {
+        display: false,
+      },
+      tooltips: {
+        enabled: false,
+      },
+    },
+  },
+});
+
 // world
 
 ("use strict");
@@ -624,3 +731,51 @@ var Earth = function (e, t) {
   ],
   container = document.getElementById("world"),
   planet = new Earth(container, data);
+
+// Add a CSS class to start the animation
+
+// CSS animation keyframes
+const keyframes = `
+#ticker-top, #ticker-bottom {
+  -webkit-animation-iteration-count: infinite; 
+           animation-iteration-count: infinite;
+   -webkit-animation-timing-function: linear;
+           animation-timing-function: linear;
+  -webkit-animation-name: ticker;
+          animation-name: ticker;
+   -webkit-animation-duration: 30s;
+           animation-duration: 30x;
+ 
+ }
+@-webkit-keyframes ticker {
+  0% {
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+    visibility: visible;
+  }
+
+  100% {
+    -webkit-transform: translate3d(-100%, 0, 0);
+    transform: translate3d(-100%, 0, 0);
+  }
+}
+
+@keyframes ticker {
+  0% {
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+    visibility: visible;
+  }
+
+  100% {
+    -webkit-transform: translate3d(-100%, 0, 0);
+    transform: translate3d(-100%, 0, 0);
+  }
+}
+
+`;
+
+// Create a style element and append the keyframes
+const style = document.createElement("style");
+style.innerHTML = keyframes;
+document.head.appendChild(style);
