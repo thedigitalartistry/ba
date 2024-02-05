@@ -10,20 +10,41 @@ function getTimezoneOffset(timeZone) {
   return offset;
 }
 
+// function populateAllHours() {
+//   const currentHourData = {};
+
+//   for (let hour = 0; hour < 24; hour++) {
+//     for (let minute = 0; minute < 60; minute++) {
+//       const time = `${hour.toString().padStart(2, "0")}:${minute
+//         .toString()
+//         .padStart(2, "0")}:00`;
+
+//       currentHourData[time] = hours_data[time];
+//     }
+//   }
+//   myChartObj.data.labels = Object.keys(currentHourData);
+//   myChartObj.data.datasets[0].data = Object.values(currentHourData);
+//   myChartObj.update();
+// }
+
 function filterSingleHout(hour) {
   const currentHourData = {};
-
-  for (let minute = 0; minute < 60; minute++) {
-    const time = `${hour.toString().padStart(2, "0")}:${minute
-      .toString()
-      .padStart(2, "0")}:00`;
-
-    currentHourData[time] = hours_data[time];
+  for (let hours = hour - 1; hours < parseInt(hour) + 2; hours++) {
+    for (let minute = 0; minute < 60; minute++) {
+      const time = `${hours.toString().padStart(2, "0")}:${minute
+        .toString()
+        .padStart(2, "0")}:00`;
+      currentHourData[time] = hours_data[time];
+    }
   }
 
   myChartObj.data.labels = Object.keys(currentHourData);
   myChartObj.data.datasets[0].data = Object.values(currentHourData);
   myChartObj.update();
+
+  // Scroll to horizontal center
+  const scrollContainer = document.querySelector("#chartContainer");
+  scrollContainer.scrollLeft = (scrollContainer.scrollWidth - scrollContainer.offsetWidth) / 2;
 }
 
 // get request
@@ -42,7 +63,6 @@ fetch(
 
     const offset = getTimezoneOffset(timeZone);
     document.querySelector("#timezone-3").value = offset * -1;
-
 
     // debugger;
     for (let hour = 0; hour < 24; hour++) {
@@ -69,9 +89,12 @@ fetch(
       }
     }
 
+    // populateAllHours();
     const now = new Date();
-    document.querySelector(".circle_link[data-hour='" + now.getHours() + "']").click();
-    filterSingleHout(now.getHours());
+    document
+      .querySelector(".circle_link[data-hour='" + now.getHours() + "']")
+      .click();
+    // filterSingleHout(now.getHours());
   })
   .catch((error) => {
     console.error("Error:", error);
@@ -84,6 +107,66 @@ document.querySelectorAll(".circle_link").forEach((el) => {
     filterSingleHout(hour);
   });
 });
+
+const scrollContainer = document.querySelector("#chartContainer");
+
+scrollContainer.addEventListener("wheel", (evt) => {
+  evt.preventDefault();
+  scrollContainer.scrollLeft += evt.deltaY;
+});
+
+let isDragging = false;
+let startX = 0;
+let scrollLeft = 0;
+
+scrollContainer.addEventListener("mousedown", (evt) => {
+  isDragging = true;
+  startX = evt.pageX - scrollContainer.offsetLeft;
+  scrollLeft = scrollContainer.scrollLeft;
+});
+
+scrollContainer.addEventListener("mousemove", (evt) => {
+  if (!isDragging) return;
+  evt.preventDefault();
+  const x = evt.pageX - scrollContainer.offsetLeft;
+  const walk = (x - startX) * 0.7; // Adjust the scroll speed as needed
+  scrollContainer.scrollLeft = scrollLeft - walk;
+});
+
+scrollContainer.addEventListener("mouseup", () => {
+  isDragging = false;
+});
+
+// ...
+
+scrollContainer.addEventListener("wheel", (evt) => {
+  evt.preventDefault();
+  scrollContainer.scrollLeft += evt.deltaY;
+
+  // Check if the left limit is reached
+  if (scrollContainer.scrollLeft === 0) {
+    const currentHour = document.querySelector(".circle_item.current .circle_link").getAttribute("data-hour");
+    const previousHour = parseInt(currentHour) - 1;
+    const previousLink = document.querySelector(`.circle_link[data-hour="${previousHour}"]`);
+    if (previousLink) {
+      previousLink.click();
+    }
+  }
+
+  // Check if the right limit is reached
+  const maxScrollLeft = scrollContainer.scrollWidth - scrollContainer.clientWidth;
+  if (scrollContainer.scrollLeft === maxScrollLeft) {
+    const currentHour = document.querySelector(".circle_item.current .circle_link").getAttribute("data-hour");
+    const nextHour = parseInt(currentHour) + 1;
+    const nextLink = document.querySelector(`.circle_link[data-hour="${nextHour}"]`);
+    if (nextLink) {
+      nextLink.click();
+    }
+  }
+});
+
+// ...
+
 
 // graph
 
