@@ -41,7 +41,7 @@ function getTimezoneOffset(timeZone) {
 
 function filterSingleHout(hour) {
   const currentHourData = {};
-  for (let hours = hour - 5; hours < parseInt(hour) + 6; hours++) {
+  for (let hours = hour - 1; hours < parseInt(hour) + 2; hours++) {
     let hour_ = hours;
     if (hour_ < 0) {
       hour_ = 24 + hour_;
@@ -210,26 +210,49 @@ scrollContainer.addEventListener("mouseleave", () => {
 
 // ...
 
-scrollContainer.addEventListener("scroll", (evt) => {
-  evt.preventDefault();
-  // if (updating) return;
-  // debugger;
-  const scrollPosition = scrollContainer.scrollLeft;
-  const hourWidth = scrollContainer.scrollWidth / 11; // Assuming 10 hours are displayed
+// scrollContainer.addEventListener("scroll", (evt) => {
+//   evt.preventDefault();
+//   // if (updating) return;
+//   // debugger;
+//   const scrollPosition = scrollContainer.scrollLeft;
+//   const hourWidth = scrollContainer.scrollWidth / 3; // Assuming 10 hours are displayed
 
-  const currentHour =
-    Math.floor(scrollPosition / hourWidth) + (new Date().getHours() - 5); // Assuming the first hour is 7:00
+//   const currentHour =
+//     Math.floor(scrollPosition / hourWidth) + (new Date().getHours() - 1); // Assuming the first hour is 7:00
 
-  // Update circle_item that matches the current hour
-  const circleItems = document.querySelectorAll(".circle_item");
-  circleItems.forEach((item) => {
-    const hour = parseInt(item.querySelector("a").getAttribute("data-hour"));
-    if (hour === currentHour) {
-      // Update the circle_item
-      // ...
-      makeItemActive($(item));
-    }
-  });
+//   // Update circle_item that matches the current hour
+//   const circleItems = document.querySelectorAll(".circle_item");
+//   circleItems.forEach((item) => {
+//     const hour = parseInt(item.querySelector("a").getAttribute("data-hour"));
+//     if (hour === currentHour) {
+//       // Update the circle_item
+//       // ...
+//       makeItemActive($(item));
+//     }
+//   });
+// });
+
+var prevHour = document.querySelector("#prevHour");
+var nextHour = document.querySelector("#nextHour");
+prevHour.addEventListener("click", () => {
+  const currentHour = parseInt(
+    document.querySelector(".circle_item.current a").getAttribute("data-hour")
+  );
+  let newHour = currentHour - 1;
+  if (newHour < 0) {
+    newHour = 23;
+  }
+  document.querySelector(".circle_link[data-hour='" + newHour + "']").click();
+});
+nextHour.addEventListener("click", () => {
+  const currentHour = parseInt(
+    document.querySelector(".circle_item.current a").getAttribute("data-hour")
+  );
+  let newHour = currentHour + 1;
+  if (newHour > 23) {
+    newHour = 0;
+  }
+  document.querySelector(".circle_link[data-hour='" + newHour + "']").click();
 });
 
 // ...
@@ -376,8 +399,12 @@ var myChartObj = new Chart(ctx, {
           padding: 20,
           backdropPadding: 20,
           font: {
-            size: 16,
-            weight: "bold",
+            size: (c) => {
+              return c.index % 15 === 0 ? 20 : 10;
+            },
+            weight: (c) => {
+              return c.index % 15 === 0 ? "bold" : "regular";
+            },
           },
         },
       },
