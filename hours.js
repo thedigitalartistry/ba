@@ -25,14 +25,23 @@ function getTimezoneOffset(timeZone) {
 //       currentHourData[time] = hours_data[time];
 //     }
 //   }
-//   myChartObj.data.labels = Object.keys(currentHourData);
-//   myChartObj.data.datasets[0].data = Object.values(currentHourData);
+//   myChartObj.data.labels = Object.keys(currentHourData).map((time) => {
+//     let hour = parseInt(time.slice(0, 2));
+//     let period = hour >= 12 ? "PM" : "AM";
+//     hour = hour % 12 || 12;
+//     return `${hour.toString().padStart(2, "0")}:${time.slice(3, 5)} ${period}`;
+//   });
+//   myChartObj.data.datasets[0].data = Object.values(currentHourData).map(
+//     (val) => {
+//       return Math.floor(Math.random() * 50);
+//     }
+//   );
 //   myChartObj.update();
 // }
 
 function filterSingleHout(hour) {
   const currentHourData = {};
-  for (let hours = hour - 1; hours < parseInt(hour) + 2; hours++) {
+  for (let hours = hour - 5; hours < parseInt(hour) + 6; hours++) {
     let hour_ = hours;
     if (hour_ < 0) {
       hour_ = 24 + hour_;
@@ -48,8 +57,18 @@ function filterSingleHout(hour) {
     }
   }
 
-  myChartObj.data.labels = Object.keys(currentHourData);
-  myChartObj.data.datasets[0].data = Object.values(currentHourData);
+  myChartObj.data.labels = Object.keys(currentHourData).map((time) => {
+    let hour = parseInt(time.slice(0, 2));
+    let period = hour >= 12 ? "PM" : "AM";
+    hour = hour % 12 || 12;
+    return `${hour.toString().padStart(2, "0")}:${time.slice(3, 5)} ${period}`;
+  });
+  myChartObj.data.datasets[0].data = Object.values(currentHourData).map(
+    (val) => {
+      // return Math.floor(Math.random() * 50);
+      return Math.floor(Math.random() * 50);
+    }
+  );
   updating = true;
   myChartObj.update();
   setTimeout(() => {
@@ -158,10 +177,10 @@ document.querySelectorAll(".circle_link").forEach((el) => {
   });
 });
 
-scrollContainer.addEventListener("wheel", (evt) => {
-  evt.preventDefault();
-  scrollContainer.scrollLeft += evt.deltaY;
-});
+// scrollContainer.addEventListener("wheel", (evt) => {
+//   evt.preventDefault();
+//   scrollContainer.scrollLeft += evt.deltaY;
+// });
 
 let isDragging = false;
 let startX = 0;
@@ -193,60 +212,24 @@ scrollContainer.addEventListener("mouseleave", () => {
 
 scrollContainer.addEventListener("scroll", (evt) => {
   evt.preventDefault();
-  if (updating) return;
-
-  // scrollContainer.scrollLeft += evt.deltaY;
+  // if (updating) return;
   // debugger;
-  // Check if the left limit is reached
-  if (scrollContainer.scrollLeft === 0) {
-    const currentHour = document
-      .querySelector(".circle_item.current .circle_link")
-      .getAttribute("data-hour");
-    let previousHour = parseInt(currentHour) - 1;
-    if (previousHour < 0) {
-      previousHour += 24;
-    }
-    if (previousHour > 23) {
-      previousHour -= 24;
-    }
-    const previousLink = document.querySelector(
-      `.circle_link[data-hour="${previousHour}"]`
-    );
-    if (previousLink) {
-      previousLink.click();
-      updating = true;
-      setTimeout(() => {
-        updating = false;
-      }, 900);
-      return;
-    }
-  }
+  const scrollPosition = scrollContainer.scrollLeft;
+  const hourWidth = scrollContainer.scrollWidth / 11; // Assuming 10 hours are displayed
 
-  // Check if the right limit is reached
-  const maxScrollLeft =
-    scrollContainer.scrollWidth - scrollContainer.clientWidth;
-  if (scrollContainer.scrollLeft === maxScrollLeft) {
-    const currentHour = document
-      .querySelector(".circle_item.current .circle_link")
-      .getAttribute("data-hour");
-    let nextHour = parseInt(currentHour) + 1;
-    if (nextHour < 0) {
-      nextHour += 24;
+  const currentHour =
+    Math.floor(scrollPosition / hourWidth) + (new Date().getHours() - 5); // Assuming the first hour is 7:00
+
+  // Update circle_item that matches the current hour
+  const circleItems = document.querySelectorAll(".circle_item");
+  circleItems.forEach((item) => {
+    const hour = parseInt(item.querySelector("a").getAttribute("data-hour"));
+    if (hour === currentHour) {
+      // Update the circle_item
+      // ...
+      makeItemActive($(item));
     }
-    if (nextHour > 23) {
-      nextHour -= 24;
-    }
-    const nextLink = document.querySelector(
-      `.circle_link[data-hour="${nextHour}"]`
-    );
-    if (nextLink) {
-      nextLink.click();
-      updating = true;
-      setTimeout(() => {
-        updating = false;
-      }, 900);
-    }
-  }
+  });
 });
 
 // ...
