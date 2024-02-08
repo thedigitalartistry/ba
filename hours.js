@@ -80,7 +80,41 @@ function filterSingleHout(hour) {
     (scrollContainer.scrollWidth - scrollContainer.offsetWidth) / 2;
 }
 
-// get request
+//populate select with id #country with all countries
+fetch("https://restcountries.com/v3.1/all?fields=name")
+  .then((response) => response.json())
+  .then((data) => {
+    let sort_countries = data.sort((a, b) => {
+      if (a.name.common < b.name.common) {
+        return -1;
+      }
+      if (a.name.common > b.name.common) {
+        return 1;
+      }
+      return 0;
+    });
+
+    sort_countries.forEach((country) => {
+      const option = document.createElement("option");
+      option.value = country.name.common;
+      option.innerText = country.name.common;
+      document.querySelector("#country").appendChild(option);
+    });
+
+    // get geolocation info and append to the form the loc and autoselect the country
+    fetch("https://ipapi.co/json/")
+      .then((response) => response.json())
+      .then((data) => {
+        document.querySelector(
+          "#country option[value='" + data.country_name + "']"
+        ).selected = "selected";
+        document.querySelector("#lat").value = data.latitude;
+        document.querySelector("#long").value = data.longitude;
+        document.querySelector("#zip").value = data.postal;
+      });
+  });
+
+// get request to zapier storage
 //https://hooks.zapier.com/hooks/catch/17703959/3qi5akn/
 fetch(
   "https://store.zapier.com/api/records?secret=72745ce5-710e-450f-be72-3b0523cb0106",
