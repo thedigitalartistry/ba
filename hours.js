@@ -1,6 +1,9 @@
 var hours_data = [];
 let updating = false;
 let total_count = 0;
+var contries;
+var sortedCountries;
+var countryCounts = {};
 const scrollContainer = document.querySelector("#chartContainer");
 
 function getTimezoneOffset(timeZone) {
@@ -61,7 +64,10 @@ function filterSingleHout(hour) {
     let hour = parseInt(time.slice(0, 2));
     let period = hour >= 12 ? "PM" : "AM";
     hour = hour % 12 || 12;
-    return `${hour.toString().padStart(2, "0")}:${time.slice(3, 5)} ${period}`;
+    return `${hour.toString().padStart(2, "0")}:${time.slice(
+      3,
+      5
+    )} ${period}    ⎯⎯⎯`;
   });
   myChartObj.data.datasets[0].data = Object.values(currentHourData).map(
     (val) => {
@@ -124,6 +130,27 @@ fetch(
 )
   .then((response) => response.json())
   .then((data) => {
+    contries = data.countries;
+
+    contries.list.forEach((country) => {
+      if (countryCounts[country]) {
+        countryCounts[country]++;
+      } else {
+        countryCounts[country] = 1;
+      }
+    });
+
+    sortedCountries = Object.keys(countryCounts).sort(function (a, b) {
+      return countryCounts[b] - countryCounts[a];
+    });
+
+    console.log(countryCounts);
+    countrieChart.data.labels = sortedCountries.slice(0, 3);
+    countrieChart.data.datasets[0].data = Object.values(countryCounts)
+      .sort((a, b) => b - a)
+      .slice(0, 3);
+    countrieChart.update();
+
     const { timeZone } = Intl.DateTimeFormat().resolvedOptions();
     document.querySelector("#timezone1").innerText = timeZone;
     document.querySelector("#timezone2").innerText = timeZone;
@@ -131,41 +158,10 @@ fetch(
     const offset = getTimezoneOffset(timeZone);
     document.querySelector("#timezone-3").value = offset * -1;
 
-    total_count = data.total_count;
-    document.querySelector("#total_minutes").innerText = total_count;
+    document.querySelector("#total_minutes").innerText = contries.list.length;
     document.querySelector("#total_hours").innerText = (
-      total_count / 60
+      contries.list.length / 60
     ).toFixed(2);
-    document.querySelector("#ticker-top").innerText =
-      total_count +
-      " people signed up  • " +
-      total_count +
-      " people signed up  • " +
-      total_count +
-      " people signed up  • " +
-      total_count +
-      " people signed up  • " +
-      total_count +
-      " people signed up  • " +
-      total_count +
-      " people signed up  • " +
-      total_count +
-      " people signed up  • ";
-    document.querySelector("#ticker-bottom").innerText =
-      total_count +
-      " people signed up  • " +
-      total_count +
-      " people signed up  • " +
-      total_count +
-      " people signed up  • " +
-      total_count +
-      " people signed up  • " +
-      total_count +
-      " people signed up  • " +
-      total_count +
-      " people signed up  • " +
-      total_count +
-      " people signed up  • ";
 
     // debugger;
     for (let hour = 0; hour < 24; hour++) {
@@ -447,17 +443,17 @@ var myChartObj = new Chart(ctx, {
 });
 
 const ctx2 = document.getElementById("topChart");
-new Chart(ctx2, {
+var countrieChart = new Chart(ctx2, {
   type: "bar",
   data,
 
   data: {
-    labels: ["Red", "Blue", "Yellow"],
+    labels: [],
     datasets: [
       {
         axis: "y",
         label: "",
-        data: [65, 59, 80],
+        data: [],
         fill: false,
         backgroundColor: ["#5DCEE8", "#5DCEE8", "#5DCEE8"],
         borderWidth: 1,
