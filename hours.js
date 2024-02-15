@@ -86,6 +86,13 @@ function filterSingleHout(hour) {
     (scrollContainer.scrollWidth - scrollContainer.offsetWidth) / 2;
 }
 
+const ro = new ResizeObserver((entries, observer) => {
+  console.log("graph resized");
+  observer.disconnect(); // Stop observing
+});
+
+ro.observe(document.querySelector("#myChart"));
+
 //populate select with id #country with all countries
 fetch("https://restcountries.com/v3.1/all?fields=name")
   .then((response) => response.json())
@@ -294,77 +301,11 @@ var myChartObj = new Chart(ctx, {
   type: "bar",
   backgroundColor: "rgba(0,0,0, 1)",
   data: {
-    labels: [
-      "7:00",
-      "7:01",
-      "7:02",
-      "7:03",
-      "7:04",
-      "7:05",
-      "7:06",
-      "7:07",
-      "7:08",
-      "7:09",
-      "7:10",
-      "7:11",
-      "7:12",
-      "7:13",
-      "7:14",
-      "7:15",
-      "7:16",
-      "7:17",
-      "7:18",
-      "7:19",
-      "7:20",
-      "7:21",
-      "7:22",
-      "7:23",
-      "7:24",
-      "7:25",
-      "7:26",
-      "7:27",
-      "7:28",
-      "7:29",
-      "7:30",
-      "7:31",
-      "7:32",
-      "7:33",
-      "7:34",
-      "7:35",
-      "7:36",
-      "7:37",
-      "7:38",
-      "7:39",
-      "7:40",
-      "7:41",
-      "7:42",
-      "7:43",
-      "7:44",
-      "7:45",
-      "7:46",
-      "7:47",
-      "7:48",
-      "7:49",
-      "7:50",
-      "7:51",
-      "7:52",
-      "7:53",
-      "7:54",
-      "7:55",
-      "7:56",
-      "7:57",
-      "7:58",
-      "7:59",
-    ],
+    labels: [],
     datasets: [
       {
         label: "",
-        data: [
-          1, 40, 80, 27, 25, 23, 13, 67, 92, 44, 4, 84, 63, 32, 66, 42, 25, 94,
-          62, 62, 32, 9, 13, 61, 34, 4, 51, 26, 38, 97, 2, 97, 83, 92, 98, 26,
-          48, 58, 24, 34, 68, 5, 14, 99, 96, 87, 67, 73, 32, 58, 84, 22, 39, 41,
-          8, 17, 79, 25, 50, 94,
-        ],
+        data: [],
         borderWidth: 1,
         barThickness: 2,
         paddding: 0,
@@ -373,6 +314,7 @@ var myChartObj = new Chart(ctx, {
     ],
   },
   options: {
+    devicePixelRatio: 1,
     responsive: false,
     backgroundColor: "rgba(255,255,255, 1)",
 
@@ -461,6 +403,7 @@ var countrieChart = new Chart(ctx2, {
     ],
   },
   options: {
+    devicePixelRatio: 1,
     indexAxis: "y",
     tooltips: {
       enabled: false,
