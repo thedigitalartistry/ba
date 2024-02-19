@@ -154,6 +154,7 @@ fetch(
     const { timeZone } = Intl.DateTimeFormat().resolvedOptions();
     document.querySelector("#timezone1").innerText = timeZone;
     document.querySelector("#timezone2").innerText = timeZone;
+    document.querySelector("#successTimezone").innerText = timeZone;
 
     const offset = getTimezoneOffset(timeZone);
     document.querySelector("#timezone-3").value = offset * -1;
@@ -220,10 +221,12 @@ document
     let period = hour >= 12 ? "PM" : "AM";
     hour = hour % 12 || 12;
 
-    document.querySelector("#selectedTime").innerHTML = `${hour.toString().padStart(
-      2,
-      "0"
-    )}:${ev.target.value.slice(3, 5)} ${period}`;
+    const timeString = `${hour
+      .toString()
+      .padStart(2, "0")}:${ev.target.value.slice(3, 5)} ${period}`;
+
+    document.querySelector("#selectedTime").innerHTML = timeString;
+    document.querySelector("#successTime").innerHTML = timeString;
   });
 
 let isDragging = false;
