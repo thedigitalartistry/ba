@@ -86,7 +86,6 @@ function filterSingleHout(hour) {
     (scrollContainer.scrollWidth - scrollContainer.offsetWidth) / 2;
 }
 
-
 //populate select with id #country with all countries
 fetch("https://restcountries.com/v3.1/all?fields=name")
   .then((response) => response.json())
@@ -213,10 +212,9 @@ document.querySelectorAll(".circle_link").forEach((el) => {
 //   scrollContainer.scrollLeft += evt.deltaY;
 // });
 
-
-document.querySelector("#selectedTime").on('change', function(ev) {
-  document.querySelector('#selectedTime').innerHTML = ev.target.value;
-})
+document.querySelector("#timeSelector").on("change", function (ev) {
+  document.querySelector("#selectedTime").innerHTML = ev.target.value;
+});
 
 let isDragging = false;
 let startX = 0;
