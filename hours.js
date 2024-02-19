@@ -86,12 +86,6 @@ function filterSingleHout(hour) {
     (scrollContainer.scrollWidth - scrollContainer.offsetWidth) / 2;
 }
 
-const ro = new ResizeObserver((entries, observer) => {
-  console.log("graph resized");
-  observer.disconnect(); // Stop observing
-});
-
-ro.observe(document.querySelector("#myChart"));
 
 //populate select with id #country with all countries
 fetch("https://restcountries.com/v3.1/all?fields=name")
