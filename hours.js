@@ -72,7 +72,7 @@ function filterSingleHout(hour) {
   myChartObj.data.datasets[0].data = Object.values(currentHourData).map(
     (val) => {
       // return Math.floor(Math.random() * 50);
-      return Math.floor(Math.random() * 50);
+      return val;
     }
   );
   updating = true;
@@ -218,6 +218,11 @@ document.querySelectorAll(".circle_link").forEach((el) => {
 //   evt.preventDefault();
 //   scrollContainer.scrollLeft += evt.deltaY;
 // });
+
+
+document.querySelector("#selectedTime").on('change', function(ev) {
+  document.querySelector('#selectedTime').innerHTML = ev.target.value;
+})
 
 let isDragging = false;
 let startX = 0;
