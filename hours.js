@@ -212,9 +212,19 @@ document.querySelectorAll(".circle_link").forEach((el) => {
 //   scrollContainer.scrollLeft += evt.deltaY;
 // });
 
-document.querySelector("#timeSelector").on("change", function (ev) {
-  document.querySelector("#selectedTime").innerHTML = ev.target.value;
-});
+document
+  .querySelector("#timeSelector")
+  .addEventListener("change", function (ev) {
+    //format 24 hours string to 12 hours string
+    let hour = parseInt(ev.target.value.slice(0, 2));
+    let period = hour >= 12 ? "PM" : "AM";
+    hour = hour % 12 || 12;
+
+    document.querySelector("#selectedTime").innerHTML = `${hour.toString().padStart(
+      2,
+      "0"
+    )}:${ev.target.value.slice(3, 5)} ${period}`;
+  });
 
 let isDragging = false;
 let startX = 0;
