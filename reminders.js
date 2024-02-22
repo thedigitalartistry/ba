@@ -20,9 +20,17 @@ async function processFormResponses() {
 
     // Extract form submissions
     const formSubmissions = response.data.formSubmissions;
+    
+    const now = moment();
 
     // Process each form submission
     formSubmissions.forEach(async (submission) => {
+      const submitted = moment(submission.dateSubmitted).format(
+        "YYYY-MM-DDTHH:mm:ssZ"
+      );
+      if (now.diff(submitted, "days") > 30) {
+        return;
+      }
       // Get the selected time from the form submission
       // let submission = formSubmissions[2];
 

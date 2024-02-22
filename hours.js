@@ -154,6 +154,7 @@ fetch(
     const { timeZone } = Intl.DateTimeFormat().resolvedOptions();
     document.querySelector("#timezone1").innerText = timeZone;
     document.querySelector("#timezone2").innerText = timeZone;
+    document.querySelector("#timezone3").innerText = timeZone;
     document.querySelector("#successTimezone").innerText = timeZone;
 
     const offset = getTimezoneOffset(timeZone);
@@ -327,7 +328,6 @@ var myChartObj = new Chart(ctx, {
     devicePixelRatio: 1,
     responsive: false,
     backgroundColor: "rgba(255,255,255, 1)",
-
     legend: {
       display: false,
       labels: {
@@ -366,6 +366,7 @@ var myChartObj = new Chart(ctx, {
           display: false,
         },
         display: false,
+        suggestedMax: 10,
       },
       x: {
         beginAtZero: true,
@@ -398,7 +399,6 @@ const ctx2 = document.getElementById("topChart");
 var countrieChart = new Chart(ctx2, {
   type: "bar",
   data,
-
   data: {
     labels: [],
     datasets: [
@@ -407,6 +407,7 @@ var countrieChart = new Chart(ctx2, {
         label: "",
         data: [],
         fill: false,
+        barThickness: 50,
         backgroundColor: ["#5DCEE8", "#5DCEE8", "#5DCEE8"],
         borderWidth: 1,
       },
@@ -415,9 +416,6 @@ var countrieChart = new Chart(ctx2, {
   options: {
     devicePixelRatio: 1,
     indexAxis: "y",
-    tooltips: {
-      enabled: false,
-    },
     scales: {
       x: {
         display: false,
@@ -432,6 +430,14 @@ var countrieChart = new Chart(ctx2, {
         },
       },
       y: {
+        grid: {
+          color: "white",
+          borderColor: "#000",
+          tickColor: "#000",
+          offset: true,
+          offsetLeft: 10,
+        },
+        borderColor: "white",
         stacked: true,
         display: true,
         ticks: {
@@ -466,265 +472,265 @@ var countrieChart = new Chart(ctx2, {
 });
 
 // world
-
+var worldData = [];
+fetch(
+  "https://store.zapier.com/api/records?secret=13e5804f-c4a4-446d-84d8-17b5c3415054",
+  {
+    method: "GET",
+  }
+)
+  .then((response) => response.json())
+  .then((data) => {
+    var temp = data.earthDate.list.map((item) => {
+      try {
+        worldData.push(JSON.parse(item));
+      } catch (error) {}
+    });
+    initMap();
+  });
+var data;
 ("use strict");
 var Earth = function (e, t) {
-    let n,
-      a,
-      r,
-      o,
-      i,
-      s,
-      l = { x: 0, y: 0 },
-      $ = { x: 0, y: 0 },
-      d = [],
-      c = { x: 1.9 * Math.PI, y: Math.PI / 6 },
-      _ = { x: 1.9 * Math.PI, y: Math.PI / 6 },
-      u = { x: 0, y: 0 },
-      m = new THREE.Vector3(0, 0, 0),
-      p = (new THREE.Clock(), Math.PI / 2),
-      g = {
-        atmosphere: {
-          uniforms: {},
-          vertexShader:
-            "varying vec3 vNormal;\nvoid main() {\nvNormal = normalize( normalMatrix * normal );\ngl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );\n}",
-          fragmentShader:
-            "varying vec3 vNormal;\nvoid main() {\nfloat intensity = pow( 0.8 - dot( vNormal, vec3( 0, 0, 1.0 ) ), 3.0 );\ngl_FragColor = vec4( 0.3, 0.4, 0.6, 0.075 ) * intensity;\n}",
-        },
-      };
-    function w(t) {
-      t.preventDefault(),
-        e.addEventListener("mouseup", h, !1),
-        e.addEventListener("mousemove", y, !1),
-        e.addEventListener("mouseout", v, !1),
-        ($.x = -t.clientX),
-        ($.y = t.clientY),
-        (u.x = _.x),
-        (u.y = _.y),
-        (e.style.cursor = "move");
-    }
-    function y(e) {
-      (l.x = -e.clientX),
-        (l.y = e.clientY),
-        (_.x = u.x + (l.x - $.x) * 0.005),
-        (_.y = u.y + (l.y - $.y) * 0.005),
-        (_.y = _.y > p ? p : _.y),
-        (_.y = _.y < -p ? -p : _.y);
-    }
-    function h(t) {
-      e.removeEventListener("mousemove", y, !1),
-        e.removeEventListener("mouseup", h, !1),
-        e.removeEventListener("mouseout", v, !1),
-        (e.style.cursor = "auto");
-    }
-    function v(t) {
+  let n,
+    a,
+    r,
+    o,
+    i,
+    s,
+    l = { x: 0, y: 0 },
+    $ = { x: 0, y: 0 },
+    d = [],
+    c = { x: 1.9 * Math.PI, y: Math.PI / 6 },
+    _ = { x: 1.9 * Math.PI, y: Math.PI / 6 },
+    u = { x: 0, y: 0 },
+    m = new THREE.Vector3(0, 0, 0),
+    p = (new THREE.Clock(), Math.PI / 2),
+    g = {
+      atmosphere: {
+        uniforms: {},
+        vertexShader:
+          "varying vec3 vNormal;\nvoid main() {\nvNormal = normalize( normalMatrix * normal );\ngl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );\n}",
+        fragmentShader:
+          "varying vec3 vNormal;\nvoid main() {\nfloat intensity = pow( 0.8 - dot( vNormal, vec3( 0, 0, 1.0 ) ), 3.0 );\ngl_FragColor = vec4( 0.3, 0.4, 0.6, 0.075 ) * intensity;\n}",
+      },
+    };
+  function w(t) {
+    t.preventDefault(),
+      e.addEventListener("mouseup", h, !1),
+      e.addEventListener("mousemove", y, !1),
+      e.addEventListener("mouseout", v, !1),
+      ($.x = -t.clientX),
+      ($.y = t.clientY),
+      (u.x = _.x),
+      (u.y = _.y),
+      (e.style.cursor = "move");
+  }
+  function y(e) {
+    (l.x = -e.clientX),
+      (l.y = e.clientY),
+      (_.x = u.x + (l.x - $.x) * 0.005),
+      (_.y = u.y + (l.y - $.y) * 0.005),
+      (_.y = _.y > p ? p : _.y),
+      (_.y = _.y < -p ? -p : _.y);
+  }
+  function h(t) {
+    e.removeEventListener("mousemove", y, !1),
       e.removeEventListener("mouseup", h, !1),
-        e.removeEventListener("mouseout", v, !1);
-    }
-    function f(e) {
-      (n.aspect = window.innerWidth / window.innerHeight),
-        n.updateProjectionMatrix(),
-        r.setSize(window.innerWidth, window.innerHeight);
-    }
-    function x(t) {
-      "move" != e.style.cursor && (_.x += 75e-5),
-        (c.x += (_.x - c.x) * 0.1),
-        (c.y += (_.y - c.y) * 0.1),
-        (n.position.x = 350 * Math.sin(c.x) * Math.cos(c.y)),
-        (n.position.y = 350 * Math.sin(c.y)),
-        (n.position.z = 350 * Math.cos(c.x) * Math.cos(c.y)),
-        n.lookAt(m),
-        r.render(a, n),
-        o.render(),
-        TWEEN.update(t),
-        requestAnimationFrame(x);
-    }
-    function P(e, t, n, r) {
-      let o = (function e(t, n, a) {
-          let r = (t * Math.PI) / 180,
-            o = ((n - 180) * Math.PI) / 180;
-          return new THREE.Vector3(
-            -a * Math.cos(r) * Math.cos(o),
-            a * Math.sin(r),
-            a * Math.cos(r) * Math.sin(o)
-          );
-        })(e, t, 150),
-        i = new THREE.SphereGeometry(n, 32, 32),
-        s = new THREE.MeshBasicMaterial({
-          color: "#bef0db",
-          opacity: 0.4,
-          side: THREE.DoubleSide,
-          transparent: !0,
-        }),
-        l = new THREE.Mesh(i, s);
-      l.position.set(o.x, o.y, o.z),
-        l.scale.set(0.01, 0.01, 0.01),
-        l.lookAt(m),
-        a.add(l),
-        new TWEEN.Tween(l.scale)
-          .to({ x: 1, y: 1, z: 1 }, 1e3)
-          .delay(350 * r + 1500)
-          .easing(TWEEN.Easing.Cubic.Out)
-          .start();
-      let $ = new THREE.RingGeometry(n + 0.5, n + 1.5, 32),
-        d = new THREE.MeshBasicMaterial({
-          color: "#ff3600",
-          opacity: 0.2,
-          side: THREE.DoubleSide,
-          transparent: !0,
-        }),
-        c = new THREE.Mesh($, d);
-      return (
-        c.position.set(o.x, o.y, o.z),
-        c.scale.set(0.01, 0.01, 0.01),
-        c.lookAt(m),
-        a.add(c),
-        new TWEEN.Tween(c.scale)
-          .to({ x: 1, y: 1, z: 1 }, 1500)
-          .delay(350 * r + 1500)
-          .easing(TWEEN.Easing.Cubic.Out)
-          .start(),
-        l
-      );
-    }
-    function S(e, t, n) {
-      let r = e.clone().sub(t).length(),
-        o = e.clone().lerp(t, 0.5),
-        i = o.length();
-      o.normalize(), o.multiplyScalar(i + 0.25 * r);
-      let s = new THREE.Vector3().subVectors(e, t);
-      s.normalize();
-      let l = o.clone().add(s.clone().multiplyScalar(0.25 * r)),
-        $ = o.clone().add(s.clone().multiplyScalar(-0.25 * r)),
-        d = new THREE.CubicBezierCurve3(e, e, l, o),
-        c = new THREE.CubicBezierCurve3(o, $, t, t),
-        _ = d.getPoints(100);
-      (_ = (_ = _.splice(0, _.length - 1)).concat(c.getPoints(100))).push(m);
-      let u = new THREE.BufferGeometry(),
-        p = new Float32Array(3 * _.length);
-      for (let g = 0; g < _.length; g++)
-        (p[3 * g + 0] = _[g].x),
-          (p[3 * g + 1] = _[g].y),
-          (p[3 * g + 2] = _[g].z);
-      u.addAttribute("position", new THREE.BufferAttribute(p, 3)),
-        u.setDrawRange(0, 0);
-      var w = new THREE.LineBasicMaterial({
-        color: new THREE.Color(16777215),
-        linewidth: 3,
-        opacity: 0.25,
-        transparent: !0,
-      });
-      let y = new THREE.Line(u, w);
-      return (y.currentPoint = 0), a.add(y), y;
-    }
-    return (
-      !(function l() {
-        (i = window.innerWidth),
-          (s = window.innerHeight),
-          (n = new THREE.PerspectiveCamera(70, i / s, 1, 700)),
-          (a = new THREE.Scene()).add(n);
-        let $ = new THREE.Geometry();
-        for (let c = 0; c < 1e3; c++) {
-          let _ = -1 + 2 * Math.random(),
-            u = -1 + 2 * Math.random(),
-            m = -1 + 2 * Math.random(),
-            p = 1 / Math.sqrt(Math.pow(_, 2) + Math.pow(u, 2) + Math.pow(m, 2));
-          (_ *= p), (u *= p), (m *= p);
-          let y = new THREE.Vector3(350 * _, 350 * u, 350 * m);
-          $.vertices.push(y);
-        }
-        let h = new THREE.Points(
-          $,
-          new THREE.PointsMaterial({ color: "#555555", size: 3 })
+      e.removeEventListener("mouseout", v, !1),
+      (e.style.cursor = "auto");
+  }
+  function v(t) {
+    e.removeEventListener("mouseup", h, !1),
+      e.removeEventListener("mouseout", v, !1);
+  }
+  function f(e) {
+    (n.aspect = window.innerWidth / window.innerHeight),
+      n.updateProjectionMatrix(),
+      r.setSize(window.innerWidth, window.innerHeight);
+  }
+  function x(t) {
+    "move" != e.style.cursor && (_.x += 75e-5),
+      (c.x += (_.x - c.x) * 0.1),
+      (c.y += (_.y - c.y) * 0.1),
+      (n.position.x = 350 * Math.sin(c.x) * Math.cos(c.y)),
+      (n.position.y = 350 * Math.sin(c.y)),
+      (n.position.z = 350 * Math.cos(c.x) * Math.cos(c.y)),
+      n.lookAt(m),
+      r.render(a, n),
+      o.render(),
+      TWEEN.update(t),
+      requestAnimationFrame(x);
+  }
+  function P(e, t, n, r) {
+    let o = (function e(t, n, a) {
+        let r = (t * Math.PI) / 180,
+          o = ((n - 180) * Math.PI) / 180;
+        return new THREE.Vector3(
+          -a * Math.cos(r) * Math.cos(o),
+          a * Math.sin(r),
+          a * Math.cos(r) * Math.sin(o)
         );
-        a.add(h);
-        let v = new THREE.PointLight("#ffffff", 0.5);
-        n.add(v),
-          v.position.set(175, 175, 0),
-          (v.target = n),
-          (THREE.ImageUtils.crossOrigin = "");
-        var x = THREE.ImageUtils.loadTexture(
-            "//s3-us-west-2.amazonaws.com/s.cdpn.io/68727/earth-lights.jpg"
-          ),
-          M = THREE.ImageUtils.loadTexture(
-            "//s3-us-west-2.amazonaws.com/s.cdpn.io/68727/earth-bump.jpg"
-          );
-        (x.minFilter = THREE.LinearFilter), (M.minFilter = THREE.LinearFilter);
-        var b = new THREE.SphereGeometry(150, 50, 30),
-          E = new THREE.MeshPhongMaterial({
-            bumpMap: M,
-            bumpScale: 4,
-            emissiveMap: x,
-            emissive: "#333333",
-            map: x,
-            specular: "#010101",
-          });
-        let z = new THREE.Mesh(b, E);
-        a.add(z);
-        let L = new THREE.ShaderMaterial({
-            vertexShader: g.atmosphere.vertexShader,
-            fragmentShader: g.atmosphere.fragmentShader,
-            side: THREE.BackSide,
-            blending: THREE.AdditiveBlending,
-            transparent: !0,
-          }),
-          C = new THREE.Mesh(b, L);
-        C.scale.set(1.3, 1.3, 1.3), a.add(C);
-        for (let B = 0; B < t.length; B++) {
-          d.push(new P(t[B].lat, t[B].long, t[B].r, B));
-          let I = S(d[0].position, d[B].position);
-          new TWEEN.Tween(I)
-            .to({ currentPoint: 200 }, 2e3)
-            .delay(350 * B + 1500)
-            .easing(TWEEN.Easing.Cubic.Out)
-            .onUpdate(function () {
-              I.geometry.setDrawRange(0, I.currentPoint);
-            })
-            .start();
-        }
-        ((r = new THREE.WebGLRenderer({ alpha: !0, antialias: !0 })).autoClear =
-          !1),
-          r.setPixelRatio(window.devicePixelRatio),
-          r.setSize(i, s),
-          (o = new THREE.EffectComposer(r)).addPass(new THREE.RenderPass(a, n));
-        let R = new THREE.BloomPass(1.75),
-          G = new THREE.FilmPass(0.25, 0.5, 2048, 0),
-          A = new THREE.ShaderPass(THREE.RGBShiftShader);
-        (A.uniforms.amount.value = 0.003),
-          (A.renderToScreen = !0),
-          o.addPass(R),
-          o.addPass(G),
-          o.addPass(A),
-          e.addEventListener("mousedown", w, !1),
-          window.addEventListener("resize", f, !1),
-          e.appendChild(r.domElement);
-      })(),
-      x(),
-      (this.animate = x),
-      this
+      })(e, t, 150),
+      i = new THREE.SphereGeometry(n, 32, 32),
+      s = new THREE.MeshBasicMaterial({
+        color: "#bef0db",
+        opacity: 0.4,
+        side: THREE.DoubleSide,
+        transparent: !0,
+      }),
+      l = new THREE.Mesh(i, s);
+    l.position.set(o.x, o.y, o.z),
+      l.scale.set(0.01, 0.01, 0.01),
+      l.lookAt(m),
+      a.add(l),
+      new TWEEN.Tween(l.scale)
+        .to({ x: 1, y: 1, z: 1 }, 1e3)
+        .delay(350 * r + 1500)
+        .easing(TWEEN.Easing.Cubic.Out)
+        .start();
+    let $ = new THREE.RingGeometry(n + 0.5, n + 1.5, 32),
+      d = new THREE.MeshBasicMaterial({
+        color: "#ff3600",
+        opacity: 0.2,
+        side: THREE.DoubleSide,
+        transparent: !0,
+      }),
+      c = new THREE.Mesh($, d);
+    return (
+      c.position.set(o.x, o.y, o.z),
+      c.scale.set(0.01, 0.01, 0.01),
+      c.lookAt(m),
+      a.add(c),
+      new TWEEN.Tween(c.scale)
+        .to({ x: 1, y: 1, z: 1 }, 1500)
+        .delay(350 * r + 1500)
+        .easing(TWEEN.Easing.Cubic.Out)
+        .start(),
+      l
     );
-  },
-  data = [
-    { lat: 14.632860269079103, long: -90.50595075514552, r: 1 },
-    { long: -81.173, lat: 28.4, r: 8 },
-    { long: -81.1, lat: 32.084, r: 3 },
-    { long: -74.006, lat: 40.713, r: 5 },
-    { long: -0.128, lat: 51.507, r: 2 },
-    { long: -87.63, lat: 41.878, r: 2 },
-    { long: -122.419, lat: 37.775, r: 2 },
-    { long: -90.199, lat: 38.627, r: 3 },
-    { long: -77.042, lat: -12.046, r: 2 },
-    { long: -77.345, lat: 25.06, r: 5 },
-    { long: -117.783, lat: 33.542, r: 2 },
-    { long: -149.9, lat: 61.218, r: 2 },
-    { long: -123.121, lat: 49.283, r: 2 },
-    { long: 25.462, lat: 36.393, r: 2 },
-    { long: -122.676, lat: 45.523, r: 3 },
-    { long: -95.401, lat: 29.817, r: 2 },
-  ],
-  container = document.getElementById("world"),
-  planet = new Earth(container, data);
+  }
+  function S(e, t, n) {
+    let r = e.clone().sub(t).length(),
+      o = e.clone().lerp(t, 0.5),
+      i = o.length();
+    o.normalize(), o.multiplyScalar(i + 0.25 * r);
+    let s = new THREE.Vector3().subVectors(e, t);
+    s.normalize();
+    let l = o.clone().add(s.clone().multiplyScalar(0.25 * r)),
+      $ = o.clone().add(s.clone().multiplyScalar(-0.25 * r)),
+      d = new THREE.CubicBezierCurve3(e, e, l, o),
+      c = new THREE.CubicBezierCurve3(o, $, t, t),
+      _ = d.getPoints(100);
+    (_ = (_ = _.splice(0, _.length - 1)).concat(c.getPoints(100))).push(m);
+    let u = new THREE.BufferGeometry(),
+      p = new Float32Array(3 * _.length);
+    for (let g = 0; g < _.length; g++)
+      (p[3 * g + 0] = _[g].x), (p[3 * g + 1] = _[g].y), (p[3 * g + 2] = _[g].z);
+    u.addAttribute("position", new THREE.BufferAttribute(p, 3)),
+      u.setDrawRange(0, 0);
+    var w = new THREE.LineBasicMaterial({
+      color: new THREE.Color(16777215),
+      linewidth: 3,
+      opacity: 0.25,
+      transparent: !0,
+    });
+    let y = new THREE.Line(u, w);
+    return (y.currentPoint = 0), a.add(y), y;
+  }
+  return (
+    !(function l() {
+      (i = window.innerWidth),
+        (s = window.innerHeight),
+        (n = new THREE.PerspectiveCamera(70, i / s, 1, 700)),
+        (a = new THREE.Scene()).add(n);
+      let $ = new THREE.Geometry();
+      for (let c = 0; c < 1e3; c++) {
+        let _ = -1 + 2 * Math.random(),
+          u = -1 + 2 * Math.random(),
+          m = -1 + 2 * Math.random(),
+          p = 1 / Math.sqrt(Math.pow(_, 2) + Math.pow(u, 2) + Math.pow(m, 2));
+        (_ *= p), (u *= p), (m *= p);
+        let y = new THREE.Vector3(350 * _, 350 * u, 350 * m);
+        $.vertices.push(y);
+      }
+      let h = new THREE.Points(
+        $,
+        new THREE.PointsMaterial({ color: "#555555", size: 3 })
+      );
+      a.add(h);
+      let v = new THREE.PointLight("#ffffff", 0.5);
+      n.add(v),
+        v.position.set(175, 175, 0),
+        (v.target = n),
+        (THREE.ImageUtils.crossOrigin = "");
+      var x = THREE.ImageUtils.loadTexture(
+          "//s3-us-west-2.amazonaws.com/s.cdpn.io/68727/earth-lights.jpg"
+        ),
+        M = THREE.ImageUtils.loadTexture(
+          "//s3-us-west-2.amazonaws.com/s.cdpn.io/68727/earth-bump.jpg"
+        );
+      (x.minFilter = THREE.LinearFilter), (M.minFilter = THREE.LinearFilter);
+      var b = new THREE.SphereGeometry(150, 50, 30),
+        E = new THREE.MeshPhongMaterial({
+          bumpMap: M,
+          bumpScale: 4,
+          emissiveMap: x,
+          emissive: "#333333",
+          map: x,
+          specular: "#010101",
+        });
+      let z = new THREE.Mesh(b, E);
+      a.add(z);
+      let L = new THREE.ShaderMaterial({
+          vertexShader: g.atmosphere.vertexShader,
+          fragmentShader: g.atmosphere.fragmentShader,
+          side: THREE.BackSide,
+          blending: THREE.AdditiveBlending,
+          transparent: !0,
+        }),
+        C = new THREE.Mesh(b, L);
+      C.scale.set(1.3, 1.3, 1.3), a.add(C);
+      for (let B = 0; B < t.length; B++) {
+        d.push(new P(t[B].lat, t[B].long, t[B].r, B));
+        let I = S(d[0].position, d[B].position);
+        new TWEEN.Tween(I)
+          .to({ currentPoint: 200 }, 2e3)
+          .delay(350 * B + 1500)
+          .easing(TWEEN.Easing.Cubic.Out)
+          .onUpdate(function () {
+            I.geometry.setDrawRange(0, I.currentPoint);
+          })
+          .start();
+      }
+      ((r = new THREE.WebGLRenderer({
+        alpha: !0,
+        antialias: !0,
+      })).autoClear = !1),
+        r.setPixelRatio(window.devicePixelRatio),
+        r.setSize(i, s),
+        (o = new THREE.EffectComposer(r)).addPass(new THREE.RenderPass(a, n));
+      let R = new THREE.BloomPass(1.75),
+        G = new THREE.FilmPass(0.25, 0.5, 2048, 0),
+        A = new THREE.ShaderPass(THREE.RGBShiftShader);
+      (A.uniforms.amount.value = 0.003),
+        (A.renderToScreen = !0),
+        o.addPass(R),
+        o.addPass(G),
+        o.addPass(A),
+        e.addEventListener("mousedown", w, !1),
+        window.addEventListener("resize", f, !1),
+        e.appendChild(r.domElement);
+    })(),
+    x(),
+    (this.animate = x),
+    this
+  );
+};
 
+function initMap() {
+  var container = document.getElementById("world"),
+    planet = new Earth(container, worldData);
+}
 // Add a CSS class to start the animation
 
 // CSS animation keyframes
