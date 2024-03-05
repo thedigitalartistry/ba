@@ -407,7 +407,7 @@ var countrieChart = new Chart(ctx2, {
         label: "",
         data: [],
         fill: false,
-        barThickness: 50,
+        barThickness: 45,
         backgroundColor: ["#5DCEE8", "#5DCEE8", "#5DCEE8"],
         borderWidth: 1,
       },
@@ -431,13 +431,13 @@ var countrieChart = new Chart(ctx2, {
       },
       y: {
         grid: {
-          color: "white",
+          color: "black",
           borderColor: "#000",
           tickColor: "#000",
           offset: true,
           offsetLeft: 10,
         },
-        borderColor: "white",
+        borderColor: "black",
         stacked: true,
         display: true,
         ticks: {
@@ -447,13 +447,13 @@ var countrieChart = new Chart(ctx2, {
           color: "#000000",
           z: 20,
           font: {
-            fontColor: "#fff",
+            fontColor: "#000",
             size: 14,
             padding: "5px",
           },
         },
         scaleLabel: {
-          fontColor: "white",
+          fontColor: "black",
         },
       },
     },
