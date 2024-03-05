@@ -155,7 +155,7 @@ fetch(
     document.querySelector("#timezone1").innerText = timeZone;
     document.querySelector("#timezone2").innerText = timeZone;
     document.querySelector("#timezone3").innerText = timeZone;
-    document.querySelector("#timezone-4").innerText = timeZone;
+    document.querySelector("#timezone-4").value = timeZone;
     document.querySelector("#successTimezone").innerText = timeZone;
 
     const offset = getTimezoneOffset(timeZone);
