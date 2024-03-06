@@ -489,6 +489,12 @@ fetch(
     });
     initMap();
   });
+
+
+function isMobile() {
+  return window.innerWidth < 768;
+}
+
 var data;
 ("use strict");
 var Earth = function (e, t) {
@@ -641,7 +647,7 @@ var Earth = function (e, t) {
   return (
     !(function l() {
       (i = window.innerWidth),
-        (s = window.innerHeight),
+        (s = isMobile() ? 400 : window.innerHeight), // resize for mobile
         (n = new THREE.PerspectiveCamera(70, i / s, 1, 700)),
         (a = new THREE.Scene()).add(n);
       let $ = new THREE.Geometry();
