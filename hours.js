@@ -2682,19 +2682,25 @@ fetch(
     });
 
     debugger;
-    countrieChart.data.labels = sortedCountries.slice(0, 3);
+    countries_top_labels = [];
+    for (let i = 0; i++; i < 3) {
+      countries_top_labels.push(
+        sortedCountries[i] + " - " + countryCounts[sortedCountries[i]]
+      );
+    }
+    countrieChart.data.labels = countries_top_labels;
     countrieChart.data.datasets[0].data = Object.values(countryCounts)
       .sort((a, b) => b - a)
       .slice(0, 3);
     countrieChart.update();
 
     const { timeZone } = Intl.DateTimeFormat().resolvedOptions();
-    timeZone = timeZone.replaceAll("_", " ");
-    document.querySelector("#timezone1").innerText = timeZone;
-    document.querySelector("#timezone2").innerText = timeZone;
-    document.querySelector("#timezone3").innerText = timeZone;
+    let timeZone_label = timeZone.replaceAll("_", " ");
+    document.querySelector("#timezone1").innerText = timeZone_label;
+    document.querySelector("#timezone2").innerText = timeZone_label;
+    document.querySelector("#timezone3").innerText = timeZone_label;
     document.querySelector("#timezone-4").value = timeZone;
-    document.querySelector("#successTimezone").innerText = timeZone;
+    document.querySelector("#successTimezone").innerText = timeZone_label;
     // document.querySelector("#your-timezone").innerText = timeZone;
 
     const offset = getTimezoneOffset(timeZone);
