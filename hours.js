@@ -2681,6 +2681,7 @@ fetch(
       return countryCounts[b] - countryCounts[a];
     });
 
+    debugger;
     countrieChart.data.labels = sortedCountries.slice(0, 3);
     countrieChart.data.datasets[0].data = Object.values(countryCounts)
       .sort((a, b) => b - a)
@@ -2688,6 +2689,7 @@ fetch(
     countrieChart.update();
 
     const { timeZone } = Intl.DateTimeFormat().resolvedOptions();
+    timeZone = timeZone.replaceAll("_", " ");
     document.querySelector("#timezone1").innerText = timeZone;
     document.querySelector("#timezone2").innerText = timeZone;
     document.querySelector("#timezone3").innerText = timeZone;

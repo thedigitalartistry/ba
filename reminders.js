@@ -28,7 +28,14 @@ async function processFormResponses() {
       const submitted = moment(submission.dateSubmitted).format(
         "YYYY-MM-DDTHH:mm:ssZ"
       );
-      if (now.diff(submitted, "days") > 30) {
+
+      const days_diff = now.diff(submitted, "days");
+      if (days_diff == 31) {
+        await sendConfirmationEmail(submission);
+        return;
+      }
+      
+      if(days_diff > 30) {
         return;
       }
       // Get the selected time from the form submission
@@ -44,8 +51,7 @@ async function processFormResponses() {
         await scheduleReminder(selectedTime, timezone, phone);
       } catch (error) {}
 
-      // Send a confirmation email using Postmark API
-      await sendConfirmationEmail(submission);
+      
     });
 
     console.log("All form responses processed successfully.");
@@ -67,7 +73,7 @@ async function scheduleReminder(time, timezone, phone) {
     const formattedTime = moment()
       .utc()
       .add(1, "days")
-      .hours(parseInt(time.split(":")[0]) + parseInt(timezone))
+      .hours(parseInt(time.split(":")[0]) + parseInt(timezone)+12)
       .minutes(parseInt(time.split(":")[1]))
       .subtract(5, "minutes")
       .seconds(0)
