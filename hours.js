@@ -83,8 +83,8 @@ function filterSingleHout(hour) {
   }, 900);
 
   // Scroll to horizontal center
-  // scrollContainer.scrollLeft =
-  // (scrollContainer.scrollWidth - scrollContainer.offsetWidth) / 2;
+  scrollContainer.scrollLeft =
+    (scrollContainer.scrollWidth - scrollContainer.offsetWidth) / 2;
 }
 
 const countries = [
