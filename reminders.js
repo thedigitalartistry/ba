@@ -1,3 +1,4 @@
+const functions = require('@google-cloud/functions-framework');
 // Import necessary libraries
 const axios = require("axios");
 const moment = require("moment");
@@ -9,6 +10,7 @@ require("dotenv").config();
 async function processFormResponses() {
   try {
     // Fetch form responses from Webflow API
+    let counter_active_users = 0;
     const response = await axios.get(
       "https://api.webflow.com/v2/forms/65b9528e143d975f4ff59ac6/submissions",
       {
@@ -23,21 +25,23 @@ async function processFormResponses() {
     
     const now = moment();
 
+  
     // Process each form submission
     formSubmissions.forEach(async (submission) => {
       const submitted = moment(submission.dateSubmitted).format(
         "YYYY-MM-DDTHH:mm:ssZ"
       );
-
+        
       const days_diff = now.diff(submitted, "days");
       if (days_diff == 31) {
-        await sendConfirmationEmail(submission);
+        //await sendConfirmationEmail(submission);
         return;
       }
       
       if(days_diff > 30) {
         return;
       }
+      counter_active_users++;
       // Get the selected time from the form submission
       // let submission = formSubmissions[2];
 
@@ -50,9 +54,17 @@ async function processFormResponses() {
       try {
         await scheduleReminder(selectedTime, timezone, phone);
       } catch (error) {}
-
-      
     });
+
+
+    // update zapier counter
+    await axios.post(
+      "https://store.zapier.com/api/records?secret=72745ce5-710e-450f-be72-3b0523cb0106",
+      {
+        active_users: counter_active_users,
+      }
+    );
+    
 
     console.log("All form responses processed successfully.");
   } catch (error) {
@@ -73,7 +85,7 @@ async function scheduleReminder(time, timezone, phone) {
     const formattedTime = moment()
       .utc()
       .add(1, "days")
-      .hours(parseInt(time.split(":")[0]) + parseInt(timezone)+12)
+      .hours(parseInt(time.split(":")[0]) + parseInt(timezone) + 12)
       .minutes(parseInt(time.split(":")[1]))
       .subtract(5, "minutes")
       .seconds(0)
@@ -85,10 +97,10 @@ async function scheduleReminder(time, timezone, phone) {
     // // Schedule a reminder SMS
     await client.messages.create({
       body:
-        "Get ready! Your sacred Torah minute is approaching with B’Shaa Achas. Prepare to embrace wisdom in 60 seconds at " +
+        "Get ready! Your B'Shaa Achas Torah minute is approaching in 60 seconds at " +
         time +
         ". 🌟 #TorahEveryMinute",
-      messagingServiceSid: "MGfe010ecd12145dfa1483af92c7e3a1e2",
+      messagingServiceSid: "MG079dbf917872ef9ce0191f67715a86a0",
       sendAt: formattedTime,
       scheduleType: "fixed",
       to: phone,
@@ -128,6 +140,9 @@ async function sendConfirmationEmail(submission) {
     console.error("Error sending confirmation email:", error);
   }
 }
-
-// Call the function to process form responses
-processFormResponses();
+// Register a CloudEvent callback with the Functions Framework that will
+// be executed when the Pub/Sub trigger topic receives a message.
+functions.cloudEvent('reminderSub', cloudEvent => {
+  // The Pub/Sub message is passed as the CloudEvent's data payload.
+ processFormResponses();
+});

@@ -2681,11 +2681,10 @@ fetch(
       return countryCounts[b] - countryCounts[a];
     });
 
-    debugger;
     countries_top_labels = [];
-    for (let i = 0; i++; i < 3) {
+    for (let i = 0; i < 3; i++) {
       countries_top_labels.push(
-        sortedCountries[i] + " - " + countryCounts[sortedCountries[i]]
+        sortedCountries[i] + " " + countryCounts[sortedCountries[i]]
       );
     }
     countrieChart.data.labels = countries_top_labels;
@@ -2707,9 +2706,7 @@ fetch(
     document.querySelector("#timezone-3").value = offset * -1;
 
     document.querySelector("#total_minutes").innerText = contries.list.length;
-    document.querySelector("#total_hours").innerText = (
-      contries.list.length / 60
-    ).toFixed(2);
+    document.querySelector("#total_hours").innerText = data.active_users;
 
     // debugger;
     for (let hour = 0; hour < 24; hour++) {
@@ -2896,6 +2893,7 @@ const ctx = document.getElementById("myChart");
 var myChartObj = new Chart(ctx, {
   type: "bar",
   backgroundColor: "rgba(0,0,0, 1)",
+  showAllTooltips: true,
   data: {
     labels: [],
     datasets: [
@@ -2931,6 +2929,10 @@ var myChartObj = new Chart(ctx, {
         display: false,
       },
       tooltip: {
+        //always display the tooltip
+        enabled: true,
+        mode: "point",
+
         backgroundColor: "#5DCEE8",
         padding: 10,
         titleColor: "#5DCEE8",
@@ -2999,9 +3001,17 @@ var countrieChart = new Chart(ctx2, {
       },
     ],
   },
+  pointRadius: 0,
+  pointHitRadius: 0,
   options: {
     devicePixelRatio: 1,
     indexAxis: "y",
+    tooltips: {
+      enabled: false,
+      custom: function (tooltipModel) {
+        tooltipModel.opacity = 0;
+      },
+    },
     scales: {
       x: {
         display: false,
@@ -3050,8 +3060,14 @@ var countrieChart = new Chart(ctx2, {
       legend: {
         display: false,
       },
-      tooltips: {
+      tooltip: {
         enabled: false,
+        custom: function (tooltipModel) {
+          tooltipModel.opacity = 0;
+        },
+        filter: function (tooltipItem) {
+          return tooltipItem.datasetIndex === 0;
+        },
       },
     },
   },
