@@ -5,7 +5,7 @@ let total_count = 0;
 var contries;
 var sortedCountries;
 var countryCounts = {};
-const scrollContainer = document.querySelector("#myChart");
+const scrollContainer = document.querySelector(".div-block-3");
 
 function getTimezoneOffset(timeZone) {
   const now = new Date();
@@ -83,8 +83,8 @@ function filterSingleHout(hour) {
   }, 900);
 
   // Scroll to horizontal center
-  scrollContainer.scrollLeft =
-    (scrollContainer.scrollWidth - scrollContainer.offsetWidth) / 2;
+  // scrollContainer.scrollLeft =
+  // (scrollContainer.scrollWidth - scrollContainer.offsetWidth) / 2;
 }
 
 const countries = [
@@ -2816,26 +2816,29 @@ let isDragging = false;
 let startX = 0;
 let scrollLeft = 0;
 
-scrollContainer.addEventListener("mousedown", (evt) => {
-  isDragging = true;
-  startX = evt.pageX - scrollContainer.offsetLeft;
-  scrollLeft = scrollContainer.scrollLeft;
-});
+// on load
+document.addEventListener("DOMContentLoaded", function () {
+  scrollContainer.addEventListener("mousedown", (evt) => {
+    isDragging = true;
+    startX = evt.pageX - scrollContainer.offsetLeft;
+    scrollLeft = scrollContainer.scrollLeft;
+  });
 
-scrollContainer.addEventListener("mousemove", (evt) => {
-  if (!isDragging) return;
-  evt.preventDefault();
-  const x = evt.pageX - scrollContainer.offsetLeft;
-  const walk = (x - startX) * 0.7; // Adjust the scroll speed as needed
-  scrollContainer.scrollLeft = scrollLeft - walk;
-});
+  scrollContainer.addEventListener("mousemove", (evt) => {
+    if (!isDragging) return;
+    evt.preventDefault();
+    const x = evt.pageX - scrollContainer.offsetLeft;
+    const walk = (x - startX) * 0.7; // Adjust the scroll speed as needed
+    scrollContainer.scrollLeft = scrollLeft - walk;
+  });
 
-scrollContainer.addEventListener("mouseup", () => {
-  isDragging = false;
-});
+  scrollContainer.addEventListener("mouseup", () => {
+    isDragging = false;
+  });
 
-scrollContainer.addEventListener("mouseleave", () => {
-  isDragging = false;
+  scrollContainer.addEventListener("mouseleave", () => {
+    isDragging = false;
+  });
 });
 
 // ...
