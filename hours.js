@@ -5,7 +5,7 @@ let total_count = 0;
 var contries;
 var sortedCountries;
 var countryCounts = {};
-const scrollContainer = document.querySelector("#chartContainer");
+const scrollContainer = document.querySelector("#myChart");
 
 function getTimezoneOffset(timeZone) {
   const now = new Date();

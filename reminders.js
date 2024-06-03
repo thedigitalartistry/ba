@@ -1,4 +1,4 @@
-const functions = require('@google-cloud/functions-framework');
+const functions = require("@google-cloud/functions-framework");
 // Import necessary libraries
 const axios = require("axios");
 const moment = require("moment");
@@ -22,23 +22,22 @@ async function processFormResponses() {
 
     // Extract form submissions
     const formSubmissions = response.data.formSubmissions;
-    
+
     const now = moment();
 
-  
     // Process each form submission
     formSubmissions.forEach(async (submission) => {
       const submitted = moment(submission.dateSubmitted).format(
         "YYYY-MM-DDTHH:mm:ssZ"
       );
-        
+
       const days_diff = now.diff(submitted, "days");
       if (days_diff == 31) {
         //await sendConfirmationEmail(submission);
         return;
       }
-      
-      if(days_diff > 30) {
+
+      if (days_diff > 30) {
         return;
       }
       counter_active_users++;
@@ -56,7 +55,6 @@ async function processFormResponses() {
       } catch (error) {}
     });
 
-
     // update zapier counter
     await axios.post(
       "https://store.zapier.com/api/records?secret=72745ce5-710e-450f-be72-3b0523cb0106",
@@ -64,7 +62,6 @@ async function processFormResponses() {
         active_users: counter_active_users,
       }
     );
-    
 
     console.log("All form responses processed successfully.");
   } catch (error) {
@@ -83,13 +80,13 @@ async function scheduleReminder(time, timezone, phone) {
 
     // Format the time using Moment.js
     const formattedTime = moment()
-      .utc()
       .add(1, "days")
-      .hours(parseInt(time.split(":")[0]) + parseInt(timezone) + 12)
+      .hours(parseInt(time.split(":")[0]))
       .minutes(parseInt(time.split(":")[1]))
       .subtract(5, "minutes")
       .seconds(0)
-      .format("YYYY-MM-DDTHH:mm:ssZ");
+      .utcOffset(timezone + "00")
+      .toISOString();
     console.log("====================================");
     console.log(time, timezone, formattedTime);
     console.log("====================================");
@@ -142,7 +139,7 @@ async function sendConfirmationEmail(submission) {
 }
 // Register a CloudEvent callback with the Functions Framework that will
 // be executed when the Pub/Sub trigger topic receives a message.
-functions.cloudEvent('reminderSub', cloudEvent => {
+functions.cloudEvent("reminderSub", (cloudEvent) => {
   // The Pub/Sub message is passed as the CloudEvent's data payload.
- processFormResponses();
+  processFormResponses();
 });
