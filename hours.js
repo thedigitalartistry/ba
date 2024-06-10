@@ -2911,7 +2911,7 @@ var myChartObj = new Chart(ctx, {
     ],
   },
   options: {
-    devicePixelRatio: 1,
+    devicePixelRatio: 2,
     responsive: false,
     backgroundColor: "rgba(255,255,255, 1)",
     legend: {
