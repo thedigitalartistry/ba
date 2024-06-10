@@ -3007,7 +3007,7 @@ var countrieChart = new Chart(ctx2, {
   pointRadius: 0,
   pointHitRadius: 0,
   options: {
-    devicePixelRatio: 1,
+    devicePixelRatio: 2,
     indexAxis: "y",
     tooltips: {
       enabled: false,
