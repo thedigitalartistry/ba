@@ -3088,12 +3088,17 @@ fetch(
   .then((data) => {
     data.earthDate.list.map((item) => {
       try {
-        var index = worldData.indexOf(JSON.parse(item));
+        var item_parsed = JSON.parse(item);
+        var index = worldData.findIndex((x) => {
+          return x.long == item_parsed.long && x.lat == item_parsed.lat;
+        });
         if (index !== -1) {
           var item_existing = worldData[index];
           item_existing.r += 1;
           worldData[index] = item_existing;
-        } else worldData.push(JSON.parse(item));
+        } else {
+          worldData.push(JSON.parse(item));
+        }
       } catch (error) {}
     });
     initMap();
