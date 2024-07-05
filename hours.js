@@ -3097,7 +3097,8 @@ fetch(
           item_existing.r += 1;
           worldData[index] = item_existing;
         } else {
-          worldData.push(JSON.parse(item));
+          item_parsed.r = 1;
+          worldData.push(item_parsed);
         }
       } catch (error) {}
     });
