@@ -3086,9 +3086,14 @@ fetch(
 )
   .then((response) => response.json())
   .then((data) => {
-    var temp = data.earthDate.list.map((item) => {
+    data.earthDate.list.map((item) => {
       try {
-        worldData.push(JSON.parse(item));
+        var index = worldData.indexOf(JSON.parse(item));
+        if (index !== -1) {
+          var item_existing = worldData[index];
+          item_existing.r += 1;
+          worldData[index] = item_existing;
+        } else worldData.push(JSON.parse(item));
       } catch (error) {}
     });
     initMap();

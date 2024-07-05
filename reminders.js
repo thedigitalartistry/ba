@@ -3,7 +3,6 @@ const functions = require("@google-cloud/functions-framework");
 const axios = require("axios");
 const moment = require("moment");
 const twilio = require("twilio");
-const postmark = require("postmark");
 require("dotenv").config();
 
 // Function to process each form response
@@ -11,29 +10,53 @@ async function processFormResponses() {
   try {
     // Fetch form responses from Webflow API
     let counter_active_users = 0;
-    const response = await axios.get(
-      "https://api.webflow.com/v2/forms/65b9528e143d975f4ff59ac6/submissions",
-      {
-        headers: {
-          Authorization: "Bearer " + process.env.WEBFLOW_API_KEY,
-        },
+    let offset = 0;
+    let submissions = [];
+    const forms = [
+      "65b9528e143d975f4ff59ac6",
+      "665a17750afdfeb7504f3128",
+      "665a17750afdfeb7504f3139",
+    ];
+
+    for (const form_id of forms) {
+      offset = 0;
+      while (true) {
+        console.log("Fetching submissions for form: " + form_id);
+        const response = await axios.get(
+          "https://api.webflow.com/v2/forms/" +
+            form_id +
+            "/submissions?limit=100&offset=" +
+            offset,
+          {
+            headers: {
+              Authorization: "Bearer " + process.env.WEBFLOW_API_KEY,
+            },
+          }
+        );
+
+        const pagination = response.data.pagination;
+        offset += pagination.limit;
+
+        if (response.data.formSubmissions.length == 0) {
+          break;
+        }
+
+        submissions = submissions.concat(response.data.formSubmissions);
       }
-    );
+    }
 
-    // Extract form submissions
-    const formSubmissions = response.data.formSubmissions;
-
+    console.log("Number of submissions: " + submissions.length);
     const now = moment();
 
     // Process each form submission
-    formSubmissions.forEach(async (submission) => {
+    submissions.forEach(async (submission) => {
       const submitted = moment(submission.dateSubmitted).format(
         "YYYY-MM-DDTHH:mm:ssZ"
       );
 
       const days_diff = now.diff(submitted, "days");
       if (days_diff == 31) {
-        //await sendConfirmationEmail(submission);
+        await sendConfirmationEmail(submission);
         return;
       }
 
@@ -45,13 +68,15 @@ async function processFormResponses() {
       // let submission = formSubmissions[2];
 
       const selectedTime = submission.formResponse.time;
-      const phone = submission.formResponse.phone;
+      const phone =
+      submission.formResponse.phone ??
+      submission.formResponse["Phone number (For text notifications．)"];
       const email = submission.formResponse.Email;
       const timezone = submission.formResponse.timezone;
 
       // Schedule a reminder using Twilio API
       try {
-        await scheduleReminder(selectedTime, timezone, phone);
+        await scheduleReminder(selectedTime, timezone, phone, days_diff, email);
       } catch (error) {}
     });
 
@@ -70,7 +95,7 @@ async function processFormResponses() {
 }
 
 // Function to schedule a reminder using Twilio API
-async function scheduleReminder(time, timezone, phone) {
+async function scheduleReminder(time, timezone, phone, days_diff, email) {
   try {
     // Create a Twilio client
     const client = twilio(
@@ -81,11 +106,10 @@ async function scheduleReminder(time, timezone, phone) {
     // Format the time using Moment.js
     const formattedTime = moment()
       .add(1, "days")
-      .hours(parseInt(time.split(":")[0]))
+      .hours(parseInt(time.split(":")[0]) + parseInt(timezone) * -1)
       .minutes(parseInt(time.split(":")[1]))
-      .subtract(5, "minutes")
+      .subtract(2, "minutes")
       .seconds(0)
-      .utcOffset(timezone + "00")
       .toISOString();
     console.log("====================================");
     console.log(time, timezone, formattedTime);
@@ -94,19 +118,52 @@ async function scheduleReminder(time, timezone, phone) {
     // // Schedule a reminder SMS
     await client.messages.create({
       body:
-        "Get ready! Your B'Shaa Achas Torah minute is approaching in 60 seconds at " +
+        "Get ready! Your B'Shaa Achas Torah minute is approaching in 2 minutes at " +
         time +
-        ". 🌟 #TorahEveryMinute",
+        ". 🌟 #TorahEveryMinute\n\nReply STOP to unsubscribe",
       messagingServiceSid: "MG079dbf917872ef9ce0191f67715a86a0",
       sendAt: formattedTime,
       scheduleType: "fixed",
       to: phone,
     });
 
+    // sendReminderEmail(email, time, formattedTime, days_diff);
+
     console.log("Reminder scheduled successfully.");
   } catch (error) {
     console.error("Error scheduling reminder:", error);
   }
+}
+
+function sendReminderEmail(email, time, formattedTime, days_diff) {
+  // send email with mailchimp
+  const mailchimpClient = require("@mailchimp/mailchimp_transactional")(
+    process.env.MAILCHIMP_API_KEY
+  );
+
+  const template = days_diff <= 1 ? "reminder" : "reminder_2";
+
+  const run = async () => {
+    const response = await mailchimpClient.messages.sendTemplate({
+      template_name: template,
+      template_content: [{}],
+      message: {
+        to: [
+          {
+            email: email,
+            type: "to",
+          },
+        ],
+        subject: "Your B'Shaa Achas minute begins now!",
+        text: "Your B'Shaa Achas minute begins now! ",
+        from_email: "no-reply@bshaaachas.com",
+      },
+      send_at: formattedTime,
+    });
+    console.log(response);
+  };
+
+  run();
 }
 
 // Function to send a confirmation email using Postmark API
@@ -121,18 +178,32 @@ async function sendConfirmationEmail(submission) {
       return;
     }
 
-    // Create a Postmark client
-    const client = new postmark.ServerClient("YOUR_POSTMARK_API_TOKEN");
+    const mailchimpClient = require("@mailchimp/mailchimp_transactional")(
+      process.env.MAILCHIMP_API_KEY
+    );
 
-    // Send a confirmation email
-    await client.sendEmail({
-      From: "YOUR_EMAIL_ADDRESS",
-      To: email,
-      Subject: "Confirmation Email",
-      TextBody: "Thank you for submitting the form.",
-    });
+    const email = submission.formResponse.Email;
 
-    console.log("Confirmation email sent successfully.");
+    const run = async () => {
+      const response = await mailchimpClient.messages.sendTemplate({
+        template_name: "completed",
+        template_content: [{}],
+        message: {
+          to: [
+            {
+              email: email,
+              type: "to",
+            },
+          ],
+          subject: "Congrats on completing a full month of Torah Learning!",
+          text: "Congrats on completing a full month of Torah Learning! ",
+          from_email: "no-reply@bshaaachas.com",
+        },
+      });
+      console.log(response);
+    };
+
+    run();
   } catch (error) {
     console.error("Error sending confirmation email:", error);
   }
