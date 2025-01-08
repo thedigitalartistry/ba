@@ -63,21 +63,37 @@ async function processFormResponses() {
       if (days_diff > 30) {
         return;
       }
-      counter_active_users++;
+      
       // Get the selected time from the form submission
       // let submission = formSubmissions[2];
+      counter_active_users++;
 
-      const selectedTime = submission.formResponse.time;
-      const phone =
-      submission.formResponse.phone ??
-      submission.formResponse["Phone number (For text notifications．)"];
-      const email = submission.formResponse.Email;
-      const timezone = submission.formResponse.timezone;
+      // lets make a pause every 30 users and rest a minuter before continue
+      const index = counter_active_users;
+      setTimeout(async () => {
+        const selectedTime = submission.formResponse.time;
+        const phone =
+          submission.formResponse.phone ??
+          submission.formResponse["Phone number (For text notifications．)"];
+        const email = submission.formResponse.Email;
+        const timezone = submission.formResponse.timezone;
 
-      // Schedule a reminder using Twilio API
-      try {
-        await scheduleReminder(selectedTime, timezone, phone, days_diff, email);
-      } catch (error) {}
+        // Schedule a reminder using Twilio API
+        try {
+          // console.log(
+          //   new Date().toTimeString() + " - send sms reminder " + index
+          // );
+          await scheduleReminder(
+            selectedTime,
+            timezone,
+            phone,
+            days_diff,
+            email
+          );
+        } catch (error) {
+          console.error("Error scheduling reminder:", error);
+        }
+      }, Math.floor(index / 30) * 60000);
     });
 
     // update zapier counter
